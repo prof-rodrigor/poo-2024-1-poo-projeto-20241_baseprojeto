@@ -8,7 +8,6 @@ import io.javalin.http.Context;
 
 public class ParticipanteController {
 
-
     public ParticipanteController() {
     }
 
@@ -30,8 +29,6 @@ public class ParticipanteController {
         participante.setSobrenome(ctx.formParam("sobrenome"));
         participante.setEmail(ctx.formParam("email"));
         participante.setTelefone(ctx.formParam("telefone"));
-        System.out.println("categoria recebida:"+ctx.formParam("categoria"));
-        System.out.println("categoria convertida:"+CategoriaParticipante.valueOf(ctx.formParam("categoria")));
         participante.setCategoria(CategoriaParticipante.valueOf(ctx.formParam("categoria")));
 
         participanteService.adicionarParticipante(participante);
