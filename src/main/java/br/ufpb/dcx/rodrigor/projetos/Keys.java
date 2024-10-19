@@ -8,7 +8,9 @@ import io.javalin.config.Key;
 public enum Keys {
     MONGO_DB(new Key<MongoDBConnector>("mongo-db")),
     PROJETO_SERVICE(new Key<ProjetoService>("projeto-service")),
-    PARTICIPANTE_SERVICE(new Key<ParticipanteService>("participante-service"))
+    PARTICIPANTE_SERVICE(new Key<ParticipanteService>("participante-service")),
+    SERVICO_NOME(new Key<String>("servico.nome")),
+    SERVICO_PING_HOST(new Key<String>("servico.ping.host"))
     ;
 
     private final Key<?> k;

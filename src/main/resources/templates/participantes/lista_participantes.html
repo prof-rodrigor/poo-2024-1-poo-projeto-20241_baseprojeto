@@ -36,10 +36,11 @@
         </th:block>
         </tbody>
     </table>
+    <div th:replace="~{componentes/confirmacao_exclusao}"></div>
     <script>
         function removerParticipante(button) {
             const id = button.getAttribute('data-id');
-            window.location.href = `/participantes/${id}/remover`;
+            confirmarExclusao(`/participantes/${id}/remover`);
         }
     </script>
 </section>

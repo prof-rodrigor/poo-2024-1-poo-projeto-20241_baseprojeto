@@ -4,6 +4,7 @@ import br.ufpb.dcx.rodrigor.projetos.db.MongoDBConnector;
 import br.ufpb.dcx.rodrigor.projetos.login.LoginController;
 import br.ufpb.dcx.rodrigor.projetos.participante.controllers.ParticipanteController;
 import br.ufpb.dcx.rodrigor.projetos.participante.services.ParticipanteService;
+import br.ufpb.dcx.rodrigor.projetos.ping.controllers.PingController;
 import br.ufpb.dcx.rodrigor.projetos.projeto.controllers.ProjetoController;
 import br.ufpb.dcx.rodrigor.projetos.projeto.services.ProjetoService;
 import io.javalin.Javalin;
@@ -26,6 +27,7 @@ public class App {
     private static final int PORTA_PADRAO = 8000;
     private static final String PROP_PORTA_SERVIDOR = "porta.servidor";
     private static final String PROP_MONGODB_CONNECTION_STRING = "mongodb.connectionString";
+    private static final String SERVICO_NOME = "servico.nome";
 
     private final Properties propriedades;
     private MongoDBConnector mongoDBConnector = null;
@@ -46,6 +48,22 @@ public class App {
         });
     }
     private void registrarServicos(JavalinConfig config, MongoDBConnector mongoDBConnector) {
+        // SERVICE NOME
+        String nomeServico = propriedades.getProperty(SERVICO_NOME);
+        if (nomeServico == null) {
+            logger.error("Defina a propriedade '{}' no arquivo propriedades", SERVICO_NOME);
+            System.exit(1);
+        }
+        config.appData(Keys.SERVICO_NOME.key(), nomeServico);
+        // SERVICO HOST PING
+        String hostPing = propriedades.getProperty("servico.ping.host");
+        if(hostPing == null){
+            logger.error("Defina o host do serviço ping no arquivo de propriedades.");
+            logger.error("exemplo: 'servico.ping.host=https://localhost:8004'");
+            System.exit(1);
+        }
+        config.appData(Keys.SERVICO_PING_HOST.key(), hostPing);
+
         ParticipanteService participanteService = new ParticipanteService(mongoDBConnector);
         config.appData(Keys.PROJETO_SERVICE.key(), new ProjetoService(mongoDBConnector, participanteService));
         config.appData(Keys.PARTICIPANTE_SERVICE.key(), participanteService);
@@ -163,6 +181,12 @@ public class App {
         app.get("/participantes/novo", participanteController::mostrarFormularioCadastro);
         app.post("/participantes", participanteController::adicionarParticipante);
         app.get("/participantes/{id}/remover", participanteController::removerParticipante);
+        app.get("/v1/participantes", participanteController::participantesPorCategoria);
+        app.get("/v1/participantes/{id}", participanteController::participantePorId);
+
+        PingController pingController = new PingController();
+        app.get("/v1/ping", pingController::ping);
+        app.get("/ping", pingController::mostrarPaginaPing);
 
     }
 
