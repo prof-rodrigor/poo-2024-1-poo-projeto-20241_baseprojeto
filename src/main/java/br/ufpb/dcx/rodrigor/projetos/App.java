@@ -1,7 +1,8 @@
 package br.ufpb.dcx.rodrigor.projetos;
 
 import br.ufpb.dcx.rodrigor.projetos.db.MongoDBConnector;
-import br.ufpb.dcx.rodrigor.projetos.login.LoginController;
+import br.ufpb.dcx.rodrigor.projetos.login.controller.*;
+import br.ufpb.dcx.rodrigor.projetos.login.service.UsuarioService;
 import br.ufpb.dcx.rodrigor.projetos.participante.controllers.ParticipanteController;
 import br.ufpb.dcx.rodrigor.projetos.participante.services.ParticipanteService;
 import br.ufpb.dcx.rodrigor.projetos.projeto.controllers.ProjetoController;
@@ -47,6 +48,7 @@ public class App {
     }
     private void registrarServicos(JavalinConfig config, MongoDBConnector mongoDBConnector) {
         ParticipanteService participanteService = new ParticipanteService(mongoDBConnector);
+        config.appData(Keys.USUARIO_SERVICE.key(), new UsuarioService(mongoDBConnector));
         config.appData(Keys.PROJETO_SERVICE.key(), new ProjetoService(mongoDBConnector, participanteService));
         config.appData(Keys.PARTICIPANTE_SERVICE.key(), participanteService);
     }
@@ -138,11 +140,27 @@ public class App {
     }
 
     private void configurarRotas(Javalin app) {
+        EsqueciSenhaController esqueciSenhaController = new EsqueciSenhaController();
+        app.get("/login/esqueci-senha", esqueciSenhaController::mostrarPaginaEsqueciSenha);
+        app.post("/login/esqueci-senha", esqueciSenhaController::enviaCodigoRecuperacaoEmail);
+        app.post("/login/conta-recuperada", esqueciSenhaController::alterarSenhaComCodigoRecuperacao);
+
+        PerfilController perfilController = new PerfilController();
+        app.get("/perfil/editar", perfilController::mostrarPaginaEditarPerfil);
+        app.post("/perfil/editar", perfilController::editarPerfil);
+
+        CadastroController cadastroController = new CadastroController();
+        app.get("/cadastro",cadastroController::rederizarCasdastro);
+        app.post("/cadastro",cadastroController::cadastrarUsuario);
+
+
         LoginController loginController = new LoginController();
         app.get("/", ctx -> ctx.redirect("/login"));
         app.get("/login", loginController::mostrarPaginaLogin);
         app.post("/login", loginController::processarLogin);
         app.get("/logout", loginController::logout);
+        app.post("/v1/autenticar",loginController::autenticar);
+
 
         app.get("/area-interna", ctx -> {
             if (ctx.sessionAttribute("usuario") == null) {
