@@ -1,6 +1,6 @@
 # sua connection string:
 mongodb.connectionString=mongodb+srv://<username>:<password>@cluster0.mkj8d.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0
-porta.servidor=8000
+porta.servidor=8080
 
 # informacoes de conexao com o email
 mail.username=email@gmail.com
